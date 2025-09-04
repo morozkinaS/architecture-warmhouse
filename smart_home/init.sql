@@ -1,4 +1,6 @@
---- таблица для сенсоров
+
+
+-- Создаём таблицу
 CREATE TABLE IF NOT EXISTS sensors (
                                        id SERIAL PRIMARY KEY,
                                        sensor_id VARCHAR(10) NOT NULL UNIQUE,
@@ -7,8 +9,9 @@ CREATE TABLE IF NOT EXISTS sensors (
     created_at TIMESTAMP DEFAULT NOW()
     );
 
---- тестовые данные
+-- Вставляем данные
 INSERT INTO sensors (sensor_id, location) VALUES
-    ('1', 'Living Room') ON CONFLICT DO NOTHING,
-    ('2', 'Bedroom') ON CONFLICT DO NOTHING,
-    ('3', 'Kitchen') ON CONFLICT DO NOTHING;
+                                              ('1', 'Living Room'),
+                                              ('2', 'Bedroom'),
+                                              ('3', 'Kitchen')
+    ON CONFLICT (sensor_id) DO NOTHING;
