@@ -1,25 +1,29 @@
 package ru.warmhouse.temperature;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
+@Slf4j
 @RestController
 public class TemperatureController {
 
     private final Random random = new Random();
 
     @GetMapping("/temperature")
-    public Map<String, Object> getTemperature(
+    public SensorResponse getTemperature(
             @RequestParam(required = false) String location,
             @RequestParam(required = false) String sensorId) {
 
-        // Определяем location по sensorId, если не задан
+        // Логика определения location и sensorId
         if (location == null || location.isEmpty()) {
             location = switch (sensorId) {
                 case "1" -> "Living Room";
@@ -29,7 +33,6 @@ public class TemperatureController {
             };
         }
 
-        // Определяем sensorId по location, если не задан
         if (sensorId == null || sensorId.isEmpty()) {
             sensorId = switch (location) {
                 case "Living Room" -> "1";
@@ -40,13 +43,46 @@ public class TemperatureController {
         }
 
         double temperature = random.nextDouble(15.0, 30.0);
+        double formattedTemp = Math.round(temperature * 10.0) / 10.0;
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("location", location);
-        response.put("sensorId", sensorId);
-        response.put("temperature", Math.round(temperature * 10.0) / 10.0); // Округляем до 1 знака
-        response.put("timestamp", ZonedDateTime.now());
+        SensorResponse response = new SensorResponse(
+                sensorId,          // camelCase
+                location,
+                formattedTemp,
+                "°C",
+                "active",
+                Instant.now().toString(),
+                "temperature"      // camelCase
+        );
 
+        log.info("Response to call by location: {}", response);
+        return response;
+    }
+
+    @GetMapping("/temperature/{sensorId}")
+    public SensorResponse getTemperatureBySensorId(@PathVariable String sensorId) {
+
+        double temperature = random.nextDouble(15.0, 30.0);
+        double formattedTemp = Math.round(temperature * 10.0) / 10.0;
+
+        String location = switch (sensorId) {
+            case "1" -> "Living Room";
+            case "2" -> "Bedroom";
+            case "3" -> "Kitchen";
+            default -> "sensor_" + sensorId;
+        };
+
+        SensorResponse response = new SensorResponse(
+                sensorId,          // camelCase
+                location,
+                formattedTemp,
+                "°C",
+                "active",
+                Instant.now().toString(),
+                "temperature"      // camelCase
+        );
+
+        log.info("Response to call by sensorId: {}", response);
         return response;
     }
 }
