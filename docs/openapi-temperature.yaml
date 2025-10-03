@@ -1,0 +1,51 @@
+openapi: 3.0.3
+info:
+  title: Temperature API
+  description: Служба для получения случайных данных о температуре
+  version: 1.0.0
+servers:
+  - url: http://localhost:8081
+    description: Локальный сервер
+
+paths:
+  /temperature:
+    get:
+      summary: Получить температуру
+      description: Возвращает случайное значение температуры для указанного места
+      parameters:
+        - name: location
+          in: query
+          description: Местоположение (Living Room, Bedroom, Kitchen)
+          required: false
+          schema:
+            type: string
+        - name: sensorId
+          in: query
+          description: ID датчика (1, 2, 3)
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Температура получена
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  location:
+                    type: string
+                    example: "Living Room"
+                  sensorId:
+                    type: string
+                    example: "1"
+                  temperature:
+                    type: number
+                    format: float
+                    example: 21.5
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: "2025-04-05T12:34:56Z"
+        '400':
+          description: Некорректные параметры
